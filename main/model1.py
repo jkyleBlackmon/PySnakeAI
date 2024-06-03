@@ -1,4 +1,5 @@
 import torch
+import numpy as np
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
@@ -33,6 +34,15 @@ class QTrainer:
         self.criterion = nn.MSELoss()
 
     def train_step(self, state, action, reward, next_state, done):
+        if isinstance(state, list):
+            state = np.array(state)
+        if isinstance(next_state, list):
+            next_state = np.array(next_state)
+        if isinstance(action, list):
+            action = np.array(action)
+        if isinstance(reward, list):
+            reward = np.array(reward)
+        
         state = torch.tensor(state, dtype=torch.float)
         next_state = torch.tensor(next_state, dtype=torch.float)
         action = torch.tensor(action, dtype=torch.long)

@@ -7,8 +7,8 @@ from game import SnakeGameAI, Direction, Point
 from model1 import Linear_QNet, QTrainer
 from plotter import plot
 
-MAX_MEMORY = 100_000    # Memory: stores 100,000 items
-BATCH_SIZE = 1000       # Batch Size: How much per run
+MAX_MEMORY = 10_000    # Memory: stores 100,000 items
+BATCH_SIZE = 100       # Batch Size: How much per run
 LR = 0.001              # Learning Rate: How fast model learns
 
 
@@ -82,9 +82,10 @@ class Agent:
         else:
             mini_sample = self.memory
 
-        states, actions, rewards, next_states, dones = zip(*mini_sample)    # Look into zip function
-        self.trainer.train_step(states, actions, rewards, next_states, dones)
-
+        # states, actions, rewards, next_states, dones = zip(*mini_sample)    # Look into zip function
+        # self.trainer.train_step(states, actions, rewards, next_states, dones)
+        for state, action, reward, next_state, done in mini_sample:
+            self.trainer.train_step(state, action, reward, next_state, done)
 
     def train_short_memory(self, state, action, reward, next_state, done):
         self.trainer.train_step(state, action, reward, next_state, done)
@@ -113,6 +114,7 @@ def train():
     record = 0
     agent = Agent()
     game = SnakeGameAI()
+    print("Starting Training...")
     while True:
         # get old/current state
         old_state = agent.get_state(game)
@@ -122,6 +124,7 @@ def train():
         reward, done, score = game.play_step(final_move)
         new_state = agent.get_state(game)
 
+        print((old_state, new_state, reward, done, score))
         # train short memory
         agent.train_short_memory(old_state, final_move, reward, new_state, done)
 
@@ -129,6 +132,7 @@ def train():
         agent.remember(old_state, final_move, reward, new_state, done)
 
         if done:
+            print("Training ... [ Game", agent.n_games + 1, "]")
             # train long/replay memory
             game.reset()
             agent.n_games += 1
@@ -147,6 +151,8 @@ def train():
             plot_mean_scores.append(mean_score)
 
             plot(plot_scores, plot_mean_scores)
+
+            print("Plotted Game", agent.n_games)
 
 
 if __name__ == '__main__':
