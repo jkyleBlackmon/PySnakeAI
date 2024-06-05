@@ -8,7 +8,7 @@ import os
 class Linear_QNet(nn.Module):
 
     def __init__(self, input_size, hidden_size, output_size):
-        super().__init__()
+        super(Linear_QNet, self).__init__()
         self.linear1 = nn.Linear(input_size, hidden_size)
         self.linear2 = nn.Linear(hidden_size, output_size)
 
@@ -55,6 +55,12 @@ class QTrainer:
             action = torch.unsqueeze(action, 0)
             reward = torch.unsqueeze(reward, 0)
             done = (done, )
+
+        # Debugging statements
+        print("State shape:", state.shape)
+        print("Next state shape:", next_state.shape)
+        print("Action shape:", action.shape)
+        print("Reward shape:", reward.shape)
 
         # 1: Get Predicted Q values w curr state
         pred = self.model(state)
