@@ -4,7 +4,8 @@
 1. Ensure `python v3.10.11` is installed and used by your system or viritual environment.
    * `python --version`
    * `python -m venv pysnake_env` 
-   * `source pysnake_env/bin/activate`
+   * `source pysnake_env/bin/activate` [MacOS]
+   * `.\pysnake_env\Scripts\Activate` [Windows]
 2. Install the packages in [requirements.txt](./requirements.txt)
    * `pip install -r requirements.txt`
 

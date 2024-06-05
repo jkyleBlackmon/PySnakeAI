@@ -1,6 +1,7 @@
 import torch
 import random
 import numpy as np
+import time
 from collections import deque # store game memory
 from game import SnakeGameAI, Direction, Point
 
@@ -114,8 +115,9 @@ def train():
     record = 0
     agent = Agent()
     game = SnakeGameAI()
-    print("Starting Training...")
+    print("Training ... [ Game", agent.n_games + 1, "]")
     while True:
+        start_time = time.time()
         # get old/current state
         old_state = agent.get_state(game)
         # get move based on curr state
@@ -124,25 +126,30 @@ def train():
         reward, done, score = game.play_step(final_move)
         new_state = agent.get_state(game)
 
-        print((old_state, new_state, reward, done, score))
+        # print((old_state, new_state, reward, done, score))
         # train short memory
+        print("Training Short Memory... ")
         agent.train_short_memory(old_state, final_move, reward, new_state, done)
+        print("Done.")
 
         # remember
         agent.remember(old_state, final_move, reward, new_state, done)
 
         if done:
-            print("Training ... [ Game", agent.n_games + 1, "]")
-            # train long/replay memory
             game.reset()
             agent.n_games += 1
-            agent.train_long_memory()
-            if(score > record):
-                record = score
+            end_time = time.time()
+            elapsed_time = end_time - start_time
+            print(f"Training ... [ Game {agent.n_games} ] - Time taken: {elapsed_time:.2f} seconds")
+            print(f"Game {agent.n_games} Score {score} Record {record}")
+
+            # Save the model every 10 games
+            if agent.n_games % 10 == 0:
                 agent.model.save()
 
-            # print info
-            print('Game', agent.n_games, 'Score', score, 'Record', record)
+            # Break after a certain number of games to prevent infinite loop
+            if agent.n_games > 1000:  # Adjust as needed
+                break
 
             # TODO: plot result
             plot_scores.append(score)
